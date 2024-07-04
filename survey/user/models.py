@@ -1,31 +1,37 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 
 
-# Create your models here.
-class Person(models.Model):
-    name = models.TextField()
-    sex = models.CharField(max_length=1)
-    age = models.IntegerField()
-    # job = models.TextField()
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None):
+        email = self.normalize_email(email)
+        email = email.lower()
+        user = self.model(email=email)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password):
+        user = self.create_user(email, password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
 
 
 class User(AbstractBaseUser):
+    objects = UserManager()
     email = models.EmailField(unique=True)
-    person = models.OneToOneField(Person, on_delete=models.SET_NULL, null=True)
     password = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     username = models.CharField(max_length=128, unique=True)
 
     USERNAME_FIELD = 'email'
-    EMAIL_FIELD = 'email'
 
 
-class Role(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-
-
-class UserRole(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
-
+class Person(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.TextField()
+    sex = models.CharField(max_length=1)
+    age = models.IntegerField()
+    # job = models.TextField()
