@@ -13,6 +13,8 @@ class Survey(models.Model):
     classification = models.ForeignKey(Classification, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     title = models.TextField()
+    small_description = models.TextField()
+    main_description = models.TextField()
 
 
 class Question(models.Model):
