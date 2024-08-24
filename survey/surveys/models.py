@@ -15,10 +15,15 @@ class Survey(models.Model):
     title = models.TextField()
     small_description = models.TextField()
     main_description = models.TextField()
+    target_number_of_participants = models.IntegerField()
+    participants_count = models.IntegerField(default=0)
+    is_complete = models.BooleanField(default=False)
 
 
 class Question(models.Model):
+    QUESTION_TYPE_CHOICES = [('CHOICE', 'choice'), ('TEXT_RESPONSE', 'text response')]
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+    question_type = models.CharField(max_length=15, choices=QUESTION_TYPE_CHOICES)
     text = models.TextField()
 
 
@@ -27,8 +32,19 @@ class Choice(models.Model):
     text = models.TextField()
 
 
+class TextResponse(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    text = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+
 class ChoiceUser(models.Model):
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+
+class CompletedSurvey(models.Model):
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
 
