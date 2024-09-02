@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import UniqueConstraint
 
 from user.models import User
 
@@ -37,13 +38,24 @@ class TextResponse(models.Model):
     text = models.TextField()
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['question', 'user'], name='unique_question_user_surveys_text_response')
+        ]
+
 
 class ChoiceUser(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['question', 'user'], name='unique_question_user_surveys_choice_user')
+        ]
 
-class CompletedSurvey(models.Model):
+
+class Participant(models.Model):
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
